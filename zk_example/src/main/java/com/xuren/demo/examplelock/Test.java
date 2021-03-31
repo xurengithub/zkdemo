@@ -1,16 +1,15 @@
-package com.xuren.demo;
+package com.xuren.demo.examplelock;
 
-import com.xuren.demo.examplelock.IMyLock;
-import com.xuren.demo.examplelock.MyLock;
-
+import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class Test {
     public static void main(String[] args) {
         final Test test = new Test();
-        IMyLock lock = new MyLock();
-//        Lock lock = new ReentrantLock();
+//        IMyLock lock = new MyLock();
+        Lock lock = new ReentrantLock();
+        Condition condition = lock.newCondition();
         new Thread(new Runnable() {
             @Override
             public void run() {
