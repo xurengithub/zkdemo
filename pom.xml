@@ -19,6 +19,7 @@
         <module>demo_provider</module>
         <module>demo_consumer</module>
         <module>zk_example</module>
+        <module>demo_provider2</module>
     </modules>
 
 
