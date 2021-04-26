@@ -8,8 +8,14 @@ public class Node<T> {
     private T value;
 
     public Node(String key, T value) {
-        this.key =  key;
+        this(key, value, null, null);
+    }
+
+    public Node(String key, T value, Node pre, Node next) {
+        this.key = key;
         this.value = value;
+        this.pre = pre;
+        this.next = next;
     }
 
     public String getKey() {

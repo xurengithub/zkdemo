@@ -1,97 +1,77 @@
 package com.xuren.demo.examplelru;
 
+import java.util.HashMap;
+
 public class LRUCache2 implements ICache<String>{
-    private Node head;
-    private Node tail;
+    private Node<String> head;
+    private Node<String> tail;
     private int capcity;
     private int size;
+    private HashMap<String, Node<String>> map;
 
     public LRUCache2(int capcity) {
         this.capcity = capcity;
+        map = new HashMap<String, Node<String>>(capcity);
     }
 
     @Override
     public String get(String key) {
-        if(head == null) {
+        Node<String> node = map.get(key);
+        if(node == null) {
             return null;
-        }
-
-        if(head.getKey().equals(key)) {
-            return (String) head.getValue();
-        }
-
-        Node t = head.next;
-        while(t != null) {
-            if(t.getKey().equals(key)) {
-                Node p = t.pre;
-                Node n = t.next;
-                p.next = n;
-                if(n != null) {
-                    n.pre = p;
+        } else {
+            if(node.pre != null) {
+                Node<String> pre = node.pre;
+                Node<String> next = node.next;
+                pre.next = next;
+                if(next != null) {
+                    next.pre = pre;
                 }
-                t.pre = null;
-                t.next = null;
-                Node tmp = head;
-                head = t;
-                t.next = tmp;
-                tmp.pre = head;
-                return (String) head.getValue();
-            } else {
-                t = t.next;
+                // 换头
+                Node<String> tmp = head;
+                head = node;
+                node.next = tmp;
             }
+            return node.getValue();
         }
-        return null;
     }
 
     @Override
     public boolean set(String key, String value) {
-        if (head == null) {
-            if(size >= capcity) {
-                return false;
-            }
-            head = new Node(key, value);
+        if(size == 0) {
+            head = new Node<String>(key, value, null, null);
             tail = head;
             size++;
+
+            map.put(key, head);
         } else {
+            if(map.containsKey(key)) {// 重复值替换value，放到队头
+                Node<String> node = map.get(key);
+            } else {//不重复
+                if(size >= capcity) {//不可添加时，则删除尾巴，加入队头
+                    Node<String> tmp = head;
+                    head = new Node<String>(key, value, null, tmp);
+                    map.put(key, head);
+                    //倒数第二个
+                    Node<String> tailPre = tail.pre;
+                    if(tailPre != null) {
+                        tailPre.next = null;
+                        map.remove(tail.getKey());
+                    }
+                } else {//可添加时，则添加到队头，
 
-            // 遍历是否有相同元素
-            if(head.getKey().equals(key)) {
-                head = new Node(key, value);
-                tail = head;
-                return true;
-            }
-            boolean has = false;
-            Node tmp = head.next;
-            while (tmp != null) {
-                if(tmp.getKey().equals(key)) {
-                    // 删除
-                    Node p = tmp.pre;
-                    Node n = tmp.next;
-                    tmp.pre = null;
-                    tmp.next = null;
-                    p.next = n;
-                    n.pre = p;
-                    has = true;
-                    break;
+                    Node<String> tmp = head;
+                    head = new Node<String>(key, value, null, tmp);
+                    if(tail == tmp) {
+                        tail.pre = head;
+                    }
+                    map.put(key, head);
+                    size++;
                 }
-
-                tmp = tmp.next;
             }
-
-            if(has) {
-                Node node = new Node(key, value);
-                Node t = head;
-                node.next = head;
-                t.pre = node;
-                head = node;
-            } else {
-                // 尾巴删除
-                // 头部增加
-            }
-
-
         }
 
-        return true;
+
+        return false;
     }
 }
